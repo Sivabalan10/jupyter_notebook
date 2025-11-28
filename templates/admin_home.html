@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Admin Dashboard</h3>
+    <div>
+      <a href="{{ url_for('admin_access') }}" class="btn btn-outline-secondary btn-sm me-2">
+        Change Access Code
+      </a>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">
+        Logout
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <span>Experiments</span>
+      <a href="{{ url_for('admin_experiment_new') }}" class="btn btn-sm btn-primary">+ Add Experiment</a>
+    </div>
+    <div class="card-body">
+      {% if experiments %}
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Link</th>
+              <th>Comments Count</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for exp in experiments %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ exp.experiment_name }}</td>
+              <td><a href="{{ exp.link }}" target="_blank">{{ exp.link }}</a></td>
+              <td>{{ exp.comments|length }}</td>
+              <td>
+                <a href="{{ url_for('admin_experiment_edit', exp_id=exp._id) }}"
+                   class="btn btn-sm btn-outline-primary">Edit</a>
+                <form action="{{ url_for('admin_experiment_delete', exp_id=exp._id) }}"
+                      method="post" class="d-inline"
+                      onsubmit="return confirm('Delete this experiment?');">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted mb-0">No experiments found.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+      Global Forum Messages (latest)
+    </div>
+    <div class="card-body">
+      {% if forums %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>From</th>
+              <th>Message</th>
+              <th>Time (UTC)</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for msg in forums %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ msg.name }}</td>
+                <td>{{ msg.message }}</td>
+                <td>{{ msg.created_at }}</td>
+                <td>
+                  <form action="{{ url_for('admin_forum_delete', msg_id=msg._id) }}"
+                        method="post" class="d-inline"
+                        onsubmit="return confirm('Delete this message?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No forum messages yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-9">
+      <h3 class="mb-3">Experiments</h3>
+
+      {% for exp in experiments %}
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h5 class="card-title mb-0">{{ exp.experiment_name }}</h5>
+              <a href="{{ exp.link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                Open
+              </a>
+            </div>
+            <p class="text-muted small mb-2">
+              Comments (sorted by votes, highest first)
+            </p>
+
+            {% if exp.comments %}
+              <ul class="list-group list-group-flush mb-2">
+                {% for comment in exp.comments[:3] %}
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <strong>{{ comment.name }}</strong><br>
+                        <span class="truncate-text">
+                          {{ comment.text }}
+                        </span>
+                      </div>
+                      <div class="text-end">
+                        <form method="post"
+                              action="{{ url_for('client_vote_comment',
+                                                exp_id=exp._id,
+                                                comment_id=comment._id) }}">
+                          <button type="submit" class="btn btn-sm btn-outline-success">
+                            ▲ Vote ({{ comment.votes or 0 }})
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+              {% if exp.comments|length > 3 %}
+                <a href="{{ url_for('client_experiment_detail', exp_id=exp._id) }}"
+                   class="small text-decoration-none">
+                  See all comments ({{ exp.comments|length }})
+                </a>
+              {% else %}
+                <a href="{{ url_for('client_experiment_detail', exp_id=exp._id) }}"
+                   class="small text-decoration-none">
+                  See details
+                </a>
+              {% endif %}
+            {% else %}
+              <p class="text-muted small mb-1">No comments yet.</p>
+              <a href="{{ url_for('client_experiment_detail', exp_id=exp._id) }}"
+                 class="small text-decoration-none">
+                Be the first to comment
+              </a>
+            {% endif %}
+
+            <hr>
+            <form method="post"
+                  action="{{ url_for('client_add_comment', exp_id=exp._id) }}"
+                  class="row gy-2 align-items-center">
+              <div class="col-md-3">
+                <input type="text" name="name" class="form-control form-control-sm"
+                       placeholder="Your name (optional)">
+              </div>
+              <div class="col-md-7">
+                <input type="text" name="comment" class="form-control form-control-sm"
+                       placeholder="Add a comment..." required>
+              </div>
+              <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-sm btn-primary">Post</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Optional empty col to keep layout balanced on large screens -->
+    <div class="col-lg-3 d-none d-lg-block"></div>
+  </div>
+</div>
+
+<!-- Global Chat Panel (top-right) -->
+<div class="global-chat-panel">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Global Forum Chat</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="global-chat-messages mb-2">
+        {% if forum_messages %}
+          {% for msg in forum_messages %}
+            <div class="mb-2">
+              <div class="small">
+                <strong>{{ msg.name }}</strong>
+                <span class="text-muted">
+                  · {{ msg.created_at.strftime("%Y-%m-%d %H:%M") if msg.created_at else "" }}
+                </span>
+              </div>
+              <div class="small">
+                {{ msg.message }}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted small mb-0">
+            No messages yet. Start the conversation!
+          </p>
+        {% endif %}
+      </div>
+
+      <form method="post" action="{{ url_for('client_forum_post') }}">
+        <div class="mb-1">
+          <input type="text" name="name" class="form-control form-control-sm"
+                 placeholder="Name (optional)">
+        </div>
+        <div class="mb-2">
+          <input type="text" name="message" class="form-control form-control-sm"
+                 placeholder="Type a message..." required>
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary w-100">
+          Send
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
