@@ -26,14 +26,14 @@ MONGO_URI = os.getenv("MONGO_URI")  # set this in your environment
 if not MONGO_URI:
     raise RuntimeError("MONGO_URI environment variable is not set")
 
-# client = MongoClient(
-#     MONGO_URI,
-#     tls=True,
-#     tlsCAFile=certifi.where()
-# )
 client = MongoClient(
-    MONGO_URI
+    MONGO_URI,
+    tls=True,
+    tlsCAFile=certifi.where()
 )
+# client = MongoClient(
+#     MONGO_URI
+# )
 
 DB_NAME = "hack_the_big_data"
 
